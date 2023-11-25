@@ -45,10 +45,9 @@ class Tomato(pygame.sprite.Sprite):
         self.player_instance = player_instance
 
         angle = math.atan2(p_y - y, p_x - x)
-        angle += random.uniform(-0.3, 0.3)
         speed = 5
-        self.dx = math.cos(angle) * speed
-        self.dy = math.sin(angle) * speed
+        self.dx = (math.cos(angle) + random.uniform(-0.1, 0.1)) * speed 
+        self.dy = (math.sin(angle) + random.uniform(-0.1, 0.1)) * speed
     
     # TODO: Fix the angles
     def update(self):
