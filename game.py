@@ -12,6 +12,7 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         self.player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
         self.image = pygame.image.load('sprites/player/down.png').convert_alpha()
+        self.image = pygame.transform.scale(self.image, (20,40))
         self.rect = self.image.get_rect(center = (player_pos.x, player_pos.y))
         
         self.position = pygame.Vector2(self.player_pos)
@@ -21,13 +22,13 @@ class Player(pygame.sprite.Sprite):
         if self.rect.y >= 10:
             if keys[pygame.K_w]:
                 self.rect.y -= 200*dt
-        if self.rect.y <= 545:
+        if self.rect.y <= 533:
             if keys[pygame.K_s]:
                 self.rect.y += 200*dt
         if self.rect.x >= 10:
             if keys[pygame.K_a]:
                 self.rect.x -= 200*dt
-        if self.rect.x <= 540:
+        if self.rect.x <= 530:
             if keys[pygame.K_d]:
                 self.rect.x += 200*dt
     
@@ -39,10 +40,12 @@ class Tomato(pygame.sprite.Sprite):
     def __init__(self, x, y, p_x, p_y, player_instance):
         super().__init__()
         self.image = pygame.image.load('sprites/tomato.png').convert_alpha()
+        self.image = pygame.transform.scale(self.image, (20,20))
         self.rect = self.image.get_rect(center=(x,y))
         self.player_instance = player_instance
 
         angle = math.atan2(p_y - y, p_x - x)
+        angle += random.uniform(-0.3, 0.3)
         speed = 5
         self.dx = math.cos(angle) * speed
         self.dy = math.sin(angle) * speed
@@ -94,13 +97,17 @@ player.add(player_instance)
 
 # Loading the 4 enemy sprites
 enemy_up_left = pygame.image.load('sprites/enemy/up_left.png').convert_alpha()
+enemy_up_left = pygame.transform.scale(enemy_up_left, (20,30))
 enemy_up_right = pygame.image.load('sprites/enemy/up_right.png').convert_alpha()
+enemy_up_right = pygame.transform.scale(enemy_up_right, (20,30))
 enemy_down_left = pygame.image.load('sprites/enemy/down_left.png').convert_alpha()
+enemy_down_left = pygame.transform.scale(enemy_down_left, (20,30))
 enemy_down_right = pygame.image.load('sprites/enemy/down_right.png').convert_alpha()
+enemy_down_right = pygame.transform.scale(enemy_down_right, (20,30))
 # Positioning the 4 enemies
-enemy_up_left_rect = enemy_up_left.get_rect(topleft=(530,550))
-enemy_up_right_rect = enemy_up_right.get_rect(topleft=(15,550))
-enemy_down_left_rect = enemy_down_left.get_rect(topleft=(530,15))
+enemy_up_left_rect = enemy_up_left.get_rect(topleft=(520,535))
+enemy_up_right_rect = enemy_up_right.get_rect(topleft=(15,535))
+enemy_down_left_rect = enemy_down_left.get_rect(topleft=(520,15))
 enemy_down_right_rect = enemy_down_right.get_rect(topleft=(15,15))
 
 # 4 Event times for each enemy
@@ -123,10 +130,10 @@ while running:
     # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
 
-        tomato_top_left = Tomato(25,25, player_instance.rect.x, player_instance.rect.y, player_instance)
-        tomato_top_right = Tomato(533,25, player_instance.rect.x, player_instance.rect.y, player_instance)
-        tomato_bottom_left = Tomato(25,555, player_instance.rect.x, player_instance.rect.y, player_instance)
-        tomato_bottom_right = Tomato(533,555, player_instance.rect.x, player_instance.rect.y, player_instance)
+        tomato_top_left = Tomato(40,40, player_instance.rect.x, player_instance.rect.y, player_instance)
+        tomato_top_right = Tomato(518,40, player_instance.rect.x, player_instance.rect.y, player_instance)
+        tomato_bottom_left = Tomato(40,540, player_instance.rect.x, player_instance.rect.y, player_instance)
+        tomato_bottom_right = Tomato(518,540, player_instance.rect.x, player_instance.rect.y, player_instance)
         
         # Top Left
         if event.type == top_left_timer:
@@ -145,10 +152,6 @@ while running:
             tomato.add(tomato_bottom_right)
             pygame.time.set_timer(bottom_right_timer, random.randint(400, 800))  # Timer 4
             
-            
-            
-            
-        
         if event.type == pygame.QUIT:
             running = False
 
