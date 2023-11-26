@@ -13,7 +13,7 @@ class Player(pygame.sprite.Sprite):
         self.player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
         self.image = pygame.image.load('sprites/player/down.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (20,40))
-        self.rect = self.image.get_rect(center = (player_pos.x, player_pos.y))
+        self.rect = self.image.get_rect(center = (self.player_pos.x, self.player_pos.y))
         
         self.position = pygame.Vector2(self.player_pos)
         self.direction = pygame.Vector2(0, -1)
@@ -77,17 +77,12 @@ clock = pygame.time.Clock()
 running = True
 dt = 0
 
-player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 ground_image = pygame.image.load('images/background_simple.png').convert_alpha()
 
 # For game over screen
 test_font = pygame.font.Font(None, 50)
 pause_text = test_font.render('Pause', False, 'Red')
 score_text = pygame.font.Font(None, 20).render(f'Score: {score}', False, 'White' )
-
-# Player
-player_surf = pygame.image.load('sprites/player/down.png').convert_alpha()
-player_rect = player_surf.get_rect(center = (player_pos.x, player_pos.y))
 
 # Class player
 player = pygame.sprite.Group()
