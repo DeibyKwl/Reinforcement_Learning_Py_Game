@@ -102,6 +102,7 @@ class Tomato(pygame.sprite.Sprite):
 class Game_env(gym.Env):
     def __init__(self):
         self.render_mode = None
+        self.done = False
         self.action_space = spaces.Discrete(8)
         self.observation_space = spaces.Box(low=-1000, high=1000, shape=(202,), dtype=np.int32) # Player position and potential 100 tomatoes positions
         pygame.init()
@@ -145,7 +146,7 @@ class Game_env(gym.Env):
 
     def step(self, action):
 
-        global dt
+        global dt, game_over
         
         self.tomato.update()
         dt = self.clock.tick(60) / 1000
@@ -226,10 +227,11 @@ class Game_env(gym.Env):
         return self.observation, self.reward, self.truncated, self.done, self.info
 
     def reset(self, seed=None):
-        global score
+        global score, game_over
         # Reset part
         #pygame.init()
         self.done = False
+        game_over = False
         score = 0 # Reset score
         self.game_over = False
         self.tomato = pygame.sprite.Group()
@@ -265,12 +267,11 @@ class Game_env(gym.Env):
         elif player_dir == 'down_right':
             self.numerical_dir = 7
 
-        self.observation = None
         self.reward = 0
         
 
-        #if self.render_mode == 'human':
-        #    self.render()
+        if self.render_mode == 'human':
+            self.render()
 
         self.observation = self._get_obs()
         self.observation = np.array([self.observation])
@@ -332,10 +333,12 @@ class Game_env(gym.Env):
 
 
 # Unit testing 
-env = Game_env()
-for _ in range(300):
-    action = env.action_space.sample()
-    obs, reward, truncated, done, _ = env.step(action)
-    env.render()
-
-env.close()
+#env = Game_env()
+#for _ in range(300):
+#    action = env.action_space.sample()
+#    obs, reward, truncated, done, _ = env.step(action)
+#    if env.done:
+#        env.reset()
+#    env.render()
+    
+#env.close()
