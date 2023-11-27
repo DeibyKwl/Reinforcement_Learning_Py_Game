@@ -1,5 +1,6 @@
-import gym
-from gym import spaces
+import gymnasium as gym
+#import gym
+from gymnasium import spaces
 import pygame
 import math
 import random
@@ -16,8 +17,6 @@ player_dir = ''
 SCREEN_WIDTH = 560
 SCREEN_HEIGHT = 580
 
-# May need to change where to init
-pygame.init()
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -78,7 +77,7 @@ class Tomato(pygame.sprite.Sprite):
 
         angle = math.atan2(p_y - y, p_x - x)
         angle += random.uniform(-0.3, 0.3)
-        speed = 5
+        speed = 8
         self.dx = math.cos(angle) * speed 
         self.dy = math.sin(angle) * speed
     
@@ -104,8 +103,9 @@ class Game_env(gym.Env):
     def __init__(self):
         self.render_mode = None
         self.action_space = spaces.Discrete(8)
-        self.observation_space = spaces.Box(low=0, high=1, shape=(2 + 4 * 100,), dtype=np.float32) # Player position and potential 100 tomatoes positions
-
+        self.observation_space = spaces.Box(low=0, high=1, shape=(202,), dtype=np.float32) # Player position and potential 100 tomatoes positions
+        pygame.init()
+        pygame.font.init()
         # for the game
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.clock = pygame.time.Clock()
@@ -128,6 +128,20 @@ class Game_env(gym.Env):
         self.tomato = pygame.sprite.Group()
 
         self.reset()
+
+    def _get_obs(self):
+        player_pos = [self.player_instance.rect.x, self.player_instance.rect.y]
+
+        tomato_pos = []
+        for tomatoes in self.tomato.sprites():
+            tomato_pos.extend([tomatoes.rect.x, tomatoes.rect.y])
+
+        if len(self.tomato) < 100:
+            zeros_to_fill = (100 - len(self.tomato)) * 2
+            tomato_pos.extend([0] * zeros_to_fill)
+        
+
+        return player_pos + tomato_pos
 
     def step(self, action):
 
@@ -198,6 +212,10 @@ class Game_env(gym.Env):
 
         self.info = {}
 
+        self.observation = self._get_obs()
+        self.observation = np.array([self.observation])
+        self.observation = self.observation.reshape(-1)
+
         if game_over:
             self.done = True
             self.reward = -10
@@ -205,11 +223,12 @@ class Game_env(gym.Env):
 
         return self.observation, self.reward, self.done, self.info
 
-    def reset(self):
+    def reset(self, seed=None):
+        global score
         # Reset part
         #pygame.init()
         self.done = False
-        self.score = 0 # Reset score
+        score = 0 # Reset score
         self.game_over = False
         self.tomato = pygame.sprite.Group()
         self.player = pygame.sprite.Group()
@@ -248,10 +267,16 @@ class Game_env(gym.Env):
         self.reward = 0
         
 
-        if self.render_mode == 'human':
-            self.render()
+        #if self.render_mode == 'human':
+        #    self.render()
 
-        return self.observation
+        self.observation = self._get_obs()
+        self.observation = np.array([self.observation])
+        self.observation = self.observation.reshape(-1)
+
+        self.info = {}
+
+        return self.observation, self.info
 
     def render(self, render_mode='human'):
 
@@ -306,7 +331,7 @@ class Game_env(gym.Env):
 
 # Unit testing 
 env = Game_env()
-for _ in range(500):
+for _ in range(300):
     action = env.action_space.sample()
     obs, reward, done, _ = env.step(action)
     env.render()
