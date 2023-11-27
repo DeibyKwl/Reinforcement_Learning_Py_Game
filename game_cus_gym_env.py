@@ -103,7 +103,7 @@ class Game_env(gym.Env):
     def __init__(self):
         self.render_mode = None
         self.action_space = spaces.Discrete(8)
-        self.observation_space = spaces.Box(low=0, high=1, shape=(202,), dtype=np.float32) # Player position and potential 100 tomatoes positions
+        self.observation_space = spaces.Box(low=-1000, high=1000, shape=(202,), dtype=np.int32) # Player position and potential 100 tomatoes positions
         pygame.init()
         pygame.font.init()
         # for the game
@@ -216,12 +216,14 @@ class Game_env(gym.Env):
         self.observation = np.array([self.observation])
         self.observation = self.observation.reshape(-1)
 
+        self.truncated = False
+
         if game_over:
             self.done = True
             self.reward = -10
-            return self.observation, self.reward, self.done, self.info
+            return self.observation, self.reward, self.truncated, self.done, self.info
 
-        return self.observation, self.reward, self.done, self.info
+        return self.observation, self.reward, self.truncated, self.done, self.info
 
     def reset(self, seed=None):
         global score
@@ -333,7 +335,7 @@ class Game_env(gym.Env):
 env = Game_env()
 for _ in range(300):
     action = env.action_space.sample()
-    obs, reward, done, _ = env.step(action)
+    obs, reward, truncated, done, _ = env.step(action)
     env.render()
 
 env.close()
