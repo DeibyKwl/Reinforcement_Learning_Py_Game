@@ -35,34 +35,34 @@ class Player(pygame.sprite.Sprite):
         
         if self.rect.y >= 10:
             if player_dir == 'up':
-                self.rect.y -= 200*dt
+                self.rect.y -= 300*dt
         if self.rect.y <= 533:
             if player_dir == 'down':
-                self.rect.y += 200*dt
+                self.rect.y += 300*dt
         if self.rect.x >= 10:
             if player_dir == 'left':
-                self.rect.x -= 200*dt
+                self.rect.x -= 300*dt
         if self.rect.x <= 530:
             if player_dir == 'right':
-                self.rect.x += 200*dt
+                self.rect.x += 300*dt
 
         # For diagonal movement for IA (testing process)
         if self.rect.y >= 10 and self.rect.x >= 10:
             if player_dir == 'up_left':
-                self.rect.y -= 200*dt
-                self.rect.x -= 200*dt
+                self.rect.y -= 300*dt
+                self.rect.x -= 300*dt
         if self.rect.y >= 10 and self.rect.x <= 530:
             if player_dir == 'up_right':
-                self.rect.y -= 200*dt
-                self.rect.x += 200*dt
+                self.rect.y -= 300*dt
+                self.rect.x += 300*dt
         if self.rect.y <= 533 and self.rect.x >= 10:
             if player_dir == 'down_left':
-                self.rect.y += 200*dt
-                self.rect.x -= 200*dt
+                self.rect.y += 300*dt
+                self.rect.x -= 300*dt
         if self.rect.y <= 533 and self.rect.x <= 530:
             if player_dir == 'down_right':
-                self.rect.y += 200*dt
-                self.rect.x += 200*dt
+                self.rect.y += 300*dt
+                self.rect.x += 300*dt
     
     def update(self, player_dir):
         self.player_input(player_dir)
@@ -202,11 +202,11 @@ class Game_env(gym.Env):
             'player_action': action
         }
 
-        reward_interval = 10
+        reward_interval = 0.5
         elapsed_time = time.time() - self.start_time
 
         if elapsed_time >= reward_interval:
-            self.reward = 10
+            self.reward = 2
             self.start_time = time.time() # reset timer
         else:
             self.reward = 0
@@ -220,8 +220,9 @@ class Game_env(gym.Env):
         self.truncated = False
 
         if game_over:
+            self.start_time = time.time() # reset timer
             self.done = True
-            self.reward = -10
+            self.reward = -3
             return self.observation, self.reward, self.truncated, self.done, self.info
 
         return self.observation, self.reward, self.truncated, self.done, self.info
