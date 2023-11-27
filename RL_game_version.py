@@ -80,8 +80,8 @@ class Tomato(pygame.sprite.Sprite):
         self.rect.x += (int(self.dx))
         self.rect.y += (int(self.dy))
 
-        if self.player_instance.rect.colliderect(self.rect):
-            game_over = True
+        #if self.player_instance.rect.colliderect(self.rect):
+        #    game_over = True
 
         self.destroy()
         return game_over
@@ -207,7 +207,6 @@ while running:
         player.draw(screen)
         player.update(player_dir)
         
-
         #Enemy
         screen.blit(enemy_up_left, enemy_up_left_rect)
         screen.blit(enemy_up_right, enemy_up_right_rect)
@@ -216,6 +215,16 @@ while running:
 
         tomato.draw(screen)
         tomato.update()
+
+        tomato_pos = []
+        for tomatoes in tomato.sprites():
+            tomato_pos.extend([tomatoes.rect.x, tomatoes.rect.y])
+        
+        if len(tomato) < 100:
+            zeros_to_fill = (100 - len(tomato)) * 2
+            tomato_pos.extend([0] * zeros_to_fill)
+        
+        print(tomato_pos)
         
 
         # Score
