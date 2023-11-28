@@ -89,7 +89,7 @@ class Tomato(pygame.sprite.Sprite):
         self.rect.y += (int(self.dy))
 
         if self.player_instance.rect.colliderect(self.rect):
-            game_over = True
+           game_over = True
 
         self.destroy()
     
@@ -104,7 +104,8 @@ class Game_env(gym.Env):
         self.render_mode = None
         self.done = False
         self.action_space = spaces.Discrete(8)
-        self.observation_space = spaces.Box(low=-1000, high=1000, shape=(202,), dtype=np.int32) # Player position and potential 100 tomatoes positions
+        # FOR TESTING, change the shape as needed
+        self.observation_space = spaces.Box(low=-1000, high=1000, shape=(42,), dtype=np.int32) # Player position and potential 100 tomatoes positions
         pygame.init()
         pygame.font.init()
         # for the game
@@ -137,10 +138,11 @@ class Game_env(gym.Env):
         for tomatoes in self.tomato.sprites():
             tomato_pos.extend([tomatoes.rect.x, tomatoes.rect.y])
 
-        if len(self.tomato) < 100:
-            zeros_to_fill = (100 - len(self.tomato)) * 2
+        # For testing purposes, change the number_instances as needed
+        number_instances = 20
+        if len(self.tomato) < number_instances:
+            zeros_to_fill = (number_instances - len(self.tomato)) * 2
             tomato_pos.extend([0] * zeros_to_fill)
-        
 
         return player_pos + tomato_pos
 
@@ -154,6 +156,9 @@ class Game_env(gym.Env):
 
         for event in pygame.event.get():
 
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
             tomato_top_left = Tomato(40,40, self.player_instance.rect.x, self.player_instance.rect.y, self.player_instance)
             tomato_top_right = Tomato(518,40, self.player_instance.rect.x, self.player_instance.rect.y, self.player_instance)
             tomato_bottom_left = Tomato(40,540, self.player_instance.rect.x, self.player_instance.rect.y, self.player_instance)
@@ -162,19 +167,19 @@ class Game_env(gym.Env):
             # Top Left
             if event.type == self.top_left_timer:
                 self.tomato.add(tomato_top_left)
-                pygame.time.set_timer(self.top_left_timer, random.randint(400, 800))  # reset timer
+                pygame.time.set_timer(self.top_left_timer, random.randint(900, 1400))  # reset timer
             # Top Right
             if event.type == self.top_right_timer:
                 self.tomato.add(tomato_top_right)
-                pygame.time.set_timer(self.top_right_timer, random.randint(500, 700))  # reset timer 2
+                pygame.time.set_timer(self.top_right_timer, random.randint(1100, 1200))  # reset timer 2
             # Bottom Left
             if event.type == self.bottom_left_timer:
                 self.tomato.add(tomato_bottom_left)
-                pygame.time.set_timer(self.bottom_left_timer, random.randint(200, 900)) # reset timer 3
+                pygame.time.set_timer(self.bottom_left_timer, random.randint(900, 1000)) # reset timer 3
             # Bottom right
             if event.type == self.bottom_right_timer:
                 self.tomato.add(tomato_bottom_right)
-                pygame.time.set_timer(self.bottom_right_timer, random.randint(400, 800))  # Timer 4
+                pygame.time.set_timer(self.bottom_right_timer, random.randint(700, 1800))  # Timer 4
 
         # player direction
         if action == 0:
@@ -196,20 +201,20 @@ class Game_env(gym.Env):
 
         self.player.update(player_dir)
         
-        self.observation = {
+        """self.observation = {
             'player_x_pos': self.player_instance.rect.x,
             'player_y_pos': self.player_instance.rect.y,
             'player_action': action
-        }
+        }"""
 
-        reward_interval = 0.5
+        reward_interval = 3
         elapsed_time = time.time() - self.start_time
 
         if elapsed_time >= reward_interval:
             self.reward = 2
             self.start_time = time.time() # reset timer
-        else:
-            self.reward = 0
+        #else:
+        #    self.reward = 0
 
         self.info = {}
 
@@ -218,19 +223,19 @@ class Game_env(gym.Env):
         self.observation = self.observation.reshape(-1)
 
         self.truncated = False
+        #print(self.done)
 
         if game_over:
             self.start_time = time.time() # reset timer
             self.done = True
-            self.reward = -3
-            return self.observation, self.reward, self.truncated, self.done, self.info
+            self.reward = -7
+            #return self.observation, self.reward, self.truncated, self.done, self.info
 
         return self.observation, self.reward, self.truncated, self.done, self.info
 
     def reset(self, seed=None):
         global score, game_over
         # Reset part
-        #pygame.init()
         self.done = False
         game_over = False
         score = 0 # Reset score
@@ -245,12 +250,11 @@ class Game_env(gym.Env):
         self.top_right_timer = pygame.USEREVENT + 2
         self.bottom_left_timer = pygame.USEREVENT + 3
         self.bottom_right_timer = pygame.USEREVENT + 4
-        pygame.time.set_timer(self.top_left_timer, random.randint(200, 500))  # Timer 1
-        pygame.time.set_timer(self.top_right_timer, random.randint(300, 500))  # Timer 2
-        pygame.time.set_timer(self.bottom_left_timer, random.randint(200, 900))  # Timer 3
-        pygame.time.set_timer(self.bottom_right_timer, random.randint(100, 500))  # Timer 4
+        pygame.time.set_timer(self.top_left_timer, random.randint(1200, 1500))  # Timer 1
+        pygame.time.set_timer(self.top_right_timer, random.randint(1300, 1500))  # Timer 2
+        pygame.time.set_timer(self.bottom_left_timer, random.randint(1200, 1900))  # Timer 3
+        pygame.time.set_timer(self.bottom_right_timer, random.randint(1100, 1500))  # Timer 4
         
-
         if player_dir == 'up':
             self.numerical_dir = 0
         elif player_dir == 'down':
@@ -334,12 +338,12 @@ class Game_env(gym.Env):
 
 
 # Unit testing 
-#env = Game_env()
-#for _ in range(300):
+# env = Game_env()
+# for _ in range(300):
 #    action = env.action_space.sample()
 #    obs, reward, truncated, done, _ = env.step(action)
-#    if env.done:
+#    if done:
 #        env.reset()
 #    env.render()
     
-#env.close()
+# env.close()
