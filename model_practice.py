@@ -21,7 +21,7 @@ for i in range(10000):
 model = PPO("MlpPolicy", env, verbose=1)  # You can change "MlpPolicy" based on your network architecture
 
 # Train the agent on your environment for a certain number of timesteps
-total_timesteps = 40000  # Set the number of training timesteps
+total_timesteps = 4000000  # Set the number of training timesteps
 
 
 obs, _ = env.reset()
@@ -32,7 +32,7 @@ episode_rewards = []
 episode_reward = 0  # Track the total reward per episode
 
 # Exploration rate (20% exploration)
-exploration_rate = 0.15
+exploration_rate = 0.99999
 
 # Visualize the learning curve
 plt.figure(figsize=(8, 6))
@@ -43,6 +43,7 @@ plt.title('Learning Curve')
 for timestep in range(total_timesteps):
     if np.random.rand() < exploration_rate:
         action = env.action_space.sample()  # Random exploration
+        exploration_rate *= 0.99999
     else:
         action, _ = model.predict(obs, deterministic=True)  # Exploitation
         
@@ -52,6 +53,7 @@ for timestep in range(total_timesteps):
     episode_reward += reward  # Accumulate the reward for the episode
 
     if env.done:
+        print(exploration_rate)
         print(f"Episode finished with reward: {episode_reward}")
         episode_rewards.append(episode_reward)
         episode_reward = 0  # Reset episode reward for the next episode
@@ -64,7 +66,6 @@ for timestep in range(total_timesteps):
         plt.pause(0.001)  # Pause to show the updated plot
 
         
-
 # Plot the final learning curve after training completion
 plt.clf()
 plt.plot(episode_rewards, label='Episode Rewards')
