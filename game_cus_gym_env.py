@@ -339,7 +339,7 @@ class Game_env(gym.Env):
 
 # Unit testing 
 # env = Game_env()
-# for _ in range(300):
+# for _ in range(3000):
 #    action = env.action_space.sample()
 #    obs, reward, truncated, done, _ = env.step(action)
 #    if done:
