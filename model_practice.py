@@ -7,21 +7,14 @@ import numpy as np
 register_custom_env()
 
 # Create an instance of your custom environment
-env = gym.make('dodge_game_env-v0')  
+env = gym.make('dodge_game_env-v1')  
 
-
-"""# Testing game
-for i in range(10000):
-    obs,reward,truncated,done,_ = env.step(env.action_space.sample())
-    if done:
-        env.reset()
-    env.render()"""
 
 # Choose PPO as the reinforcement learning algorithm
 model = PPO("MlpPolicy", env, verbose=1)  # You can change "MlpPolicy" based on your network architecture
 
 # Train the agent on your environment for a certain number of timesteps
-total_timesteps = 4000000  # Set the number of training timesteps
+total_timesteps = 400000  # Set the number of training timesteps
 
 
 obs, _ = env.reset()
@@ -43,7 +36,7 @@ plt.title('Learning Curve')
 for timestep in range(total_timesteps):
     if np.random.rand() < exploration_rate:
         action = env.action_space.sample()  # Random exploration
-        exploration_rate *= 0.99999
+        exploration_rate *= 0.9999
     else:
         action, _ = model.predict(obs, deterministic=True)  # Exploitation
         
