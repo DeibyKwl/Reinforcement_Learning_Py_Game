@@ -5,22 +5,27 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from collections import deque
+import os
 
 register_custom_env()
 
 # Create an instance of your custom environment
-env = gym.make('dodge_game_env-v0')
+env = gym.make('dodge_game_env-v1')
 
 
-input_shape = [42]
-n_outputs = env.action_space.n
+input_shape = [21]
+n_outputs = 8
 
 # Deep Q-Network model
 model = keras.models.Sequential([
-    keras.layers.Dense(32, activation="elu", input_shape=input_shape),
-    keras.layers.Dense(32, activation="elu"),
+    keras.layers.Dense(21, activation="relu", input_shape=input_shape),
+    keras.layers.Dense(30, activation="relu"),
+    keras.layers.Dense(20, activation="relu"),
     keras.layers.Dense(n_outputs)
 ])
+
+
+#model.load_weights('models/trained_model.h5')
 
 
 # Epsilon-greedy policy
@@ -32,11 +37,9 @@ def epsilon_greedy_policy(state, epsilon=0):
         return np.argmax(Q_values[0])
     
 
-
-
 # Other parameters and initialization
 replay_buffer = deque(maxlen=2000)
-batch_size = 32
+batch_size = 21
 discount_factor = 0.95
 optimizer = keras.optimizers.Adam(lr=1e-3)
 loss_fn = keras.losses.mean_squared_error
@@ -68,8 +71,6 @@ def training_step(batch_size):
     grads = tape.gradient(loss, model.trainable_variables)
     optimizer.apply_gradients(zip(grads, model.trainable_variables))
 
-
-
 episode_rewards = []
 training_losses = []
 
@@ -79,8 +80,20 @@ plt.xlabel('Timesteps')
 plt.ylabel('Total Rewards')
 plt.title('Learning Curve')
 
+# Create a new file in write mode ('w') to start fresh
+with open('record_training.txt', 'w') as file:
+    file.write('Rewards per Episode:\n')  # Initial header or marker
+
+
+
+# Directory to save models
+model_dir = 'models'
+if not os.path.exists(model_dir):
+    os.makedirs(model_dir)
+
+
 # Main loop for training
-for episode in range(1000):
+for episode in range(100000):
     obs, info = env.reset()
     print('episode:', episode)
     # Your code here to preprocess 'obs' into a 42-element state representation if needed
@@ -88,10 +101,11 @@ for episode in range(1000):
     total_reward = 0  # Track total reward per episode
     env.render()
 
-    for step in range(20000):
+    for step in range(2000):
         
         env.render()
         epsilon = max(1 - episode / 500, 0.01)
+        #epsilon = 6
         action = epsilon_greedy_policy(obs, epsilon)
         next_obs, reward, truncated, done, info = env.step(action)
 
@@ -103,11 +117,18 @@ for episode in range(1000):
         total_reward += reward  # Accumulate total reward for this episode
 
         if env.done:
+
+            with open('record_training.txt', 'a') as file:
+                file.write(f'Episode: {episode + 1}, Total Reward: {total_reward}, Exploration Rate (epsilon): {epsilon}\n')
             plt.clf()  # Clear the previous plot
             plt.plot(episode_rewards, label='Episode Rewards')
             plt.legend()
             plt.pause(0.001)  # Pause to show the updated plot
             obs = env.reset()
+
+            if episode % 100 == 0:
+                model.save('models/trained_model.h5')
+
             break
 
     if episode > 50:
