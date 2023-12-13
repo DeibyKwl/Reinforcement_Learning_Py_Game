@@ -5,11 +5,12 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from collections import deque
+from game_cus_gym_env_v3 import NoisyDense
 
 register_custom_env()
 
 # Create an instance of your custom environment
-env = gym.make('dodge_game_env-v0')
+env = gym.make('dodge_game_env-v2')
 
 
 input_shape = [42]
@@ -17,23 +18,36 @@ n_outputs = env.action_space.n
 
 # Deep Q-Network model
 #is there a way to improve this model?
+# model = keras.models.Sequential([
+#     keras.layers.Dense(64, activation="elu", input_shape=input_shape),
+#     keras.layers.Dropout(0.2), # Dropout layer to prevent overfitting
+#     keras.layers.Dense(64, activation="elu"),
+#     keras.layers.BatchNormalization(), # Batch Normalization layer
+#     keras.layers.Dense(32, activation="elu"),
+#     keras.layers.Dense(n_outputs)
+# ])
+
+
 model = keras.models.Sequential([
-    keras.layers.Dense(64, activation="elu", input_shape=input_shape),
-    keras.layers.Dropout(0.2), # Dropout layer to prevent overfitting
-    keras.layers.Dense(64, activation="elu"),
-    keras.layers.BatchNormalization(), # Batch Normalization layer
-    keras.layers.Dense(32, activation="elu"),
-    keras.layers.Dense(n_outputs)
+    NoisyDense(64, activation="elu", input_shape=input_shape),
+    keras.layers.Dropout(0.2),
+    NoisyDense(64, activation="elu"),
+    keras.layers.BatchNormalization(),
+    NoisyDense(32, activation="elu"),
+    NoisyDense(n_outputs)
 ])
 
-
-# Boltzmann policy with numerically stable softmax
+# Boltzmann policy with a stable softmax
 def stable_softmax(logits):
     z = logits - np.max(logits)
     exp_logits = np.exp(z)
     sum_exp_logits = np.sum(exp_logits)
     softmax = exp_logits / sum_exp_logits
     return softmax
+
+# def upper_confidence_bound(Q_values, step):
+#     c = 0.1
+#     return Q_values + c * np.sqrt(np.log(step + 1) / (action_counts + 1))
 
 def boltzmann_policy(state, temperature=1.0):
     Q_values = model.predict(state[np.newaxis], verbose=0)[0]
@@ -58,7 +72,12 @@ def epsilon_greedy_policy(state, epsilon=0):
         Q_values = model.predict(state[np.newaxis])
         return np.argmax(Q_values[0])
     
-
+def noisey_network(x, units, name):
+    x = keras.layers.Dense(units, activation="elu", name=name + "_Dense_1")(x)
+    x = keras.layers.Dropout(0.2, name=name + "_Dropout_1")(x)
+    x = keras.layers.Dense(units, activation="elu", name=name + "_Dense_2")(x)
+    x = keras.layers.Dropout(0.2, name=name + "_Dropout_2")(x)
+    return x
 
 # Other parameters and initialization
 replay_buffer = deque(maxlen=2000)

@@ -6,6 +6,14 @@ import math
 import random
 import numpy as np
 import time
+import tensorflow as tf
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import keras
+
+
+
 
 # this is the game enviroment file
 # in this file we will define the game enviroment(duh)
@@ -20,6 +28,33 @@ player_dir = ''
 
 SCREEN_WIDTH = 560
 SCREEN_HEIGHT = 580
+
+
+class NoisyDense(keras.layers.Layer):
+    def __init__(self, units, **kwargs):
+        super(NoisyDense, self).__init__(**kwargs)
+        self.units = units
+
+    def build(self, input_shape):
+        self.w_mu = self.add_weight(name='w_mu', shape=(input_shape[-1], self.units),
+                                    initializer='random_normal', trainable=True)
+        self.w_sigma = self.add_weight(name='w_sigma', shape=(input_shape[-1], self.units),
+                                       initializer='random_normal', trainable=True)
+        self.b_mu = self.add_weight(name='b_mu', shape=(self.units,),
+                                    initializer='zeros', trainable=True)
+        self.b_sigma = self.add_weight(name='b_sigma', shape=(self.units,),
+                                       initializer='random_normal', trainable=True)
+
+    def call(self, inputs, training=None):
+        if training:
+            epsilon_w = tf.random.normal(shape=(inputs.shape[-1], self.units))
+            epsilon_b = tf.random.normal(shape=(self.units,))
+            w = self.w_mu + self.w_sigma * epsilon_w
+            b = self.b_mu + self.b_sigma * epsilon_b
+        else:
+            w = self.w_mu
+            b = self.b_mu
+        return tf.matmul(inputs, w) + b
 
 # Player class
 class Player(pygame.sprite.Sprite):
@@ -94,6 +129,72 @@ class Player(pygame.sprite.Sprite):
     
     def update(self, player_dir):
         self.player_input(player_dir)
+
+class NoisyLinear(nn.Module):
+    def __init__(self, in_features, out_features, std_init=0.4):
+        super(NoisyLinear, self).__init__()
+
+        self.in_features = in_features
+        self.out_features = out_features
+        self.std_init = std_init
+
+        self.weight_mu = nn.Parameter(torch.FloatTensor(out_features, in_features))
+        self.weight_sigma = nn.Parameter(torch.FloatTensor(out_features, in_features))
+        self.register_buffer('weight_epsilon', torch.FloatTensor(out_features, in_features))
+
+        self.bias_mu = nn.Parameter(torch.FloatTensor(out_features))
+        self.bias_sigma = nn.Parameter(torch.FloatTensor(out_features))
+        self.register_buffer('bias_epsilon', torch.FloatTensor(out_features))
+
+        self.reset_parameters()
+        self.reset_noise()
+
+    def reset_parameters(self):
+        mu_range = 1 / self.in_features ** 0.5
+        self.weight_mu.data.uniform_(-mu_range, mu_range)
+        self.weight_sigma.data.fill_(self.std_init / self.in_features ** 0.5)
+        
+        self.bias_mu.data.uniform_(-mu_range, mu_range)
+        self.bias_sigma.data.fill_(self.std_init / self.in_features ** 0.5)
+
+    def reset_noise(self):
+        epsilon_in = self.scale_noise(self.in_features)
+        epsilon_out = self.scale_noise(self.out_features)
+
+        self.weight_epsilon.copy_(epsilon_out.ger(epsilon_in))
+        self.bias_epsilon.copy_(epsilon_out)
+
+    def scale_noise(self, size):
+        x = torch.randn(size)
+        return x.sign().mul_(x.abs().sqrt_())
+
+    def forward(self, x):
+        if self.training: 
+            return F.linear(x, self.weight_mu + self.weight_sigma * self.weight_epsilon,
+                            self.bias_mu + self.bias_sigma * self.bias_epsilon)
+        else:
+            return F.linear(x, self.weight_mu, self.bias_mu)
+        
+class NoisyDQN(nn.Module):
+    def __init__(self, num_inputs, num_outputs):
+        super(NoisyDQN, self).__init__()
+
+        # Define your network layers here
+        self.fc1 = NoisyLinear(num_inputs, 128)
+        self.fc2 = NoisyLinear(128, 128)
+        self.fc3 = NoisyLinear(128, num_outputs)
+
+    def forward(self, x):
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        return self.fc3(x)
+
+    def reset_noise(self):
+        # Reset noise for all noisy layers
+        self.fc1.reset_noise()
+        self.fc2.reset_noise()
+        self.fc3.reset_noise()
+
 
 # Tomato class
 class Tomato(pygame.sprite.Sprite):
@@ -243,11 +344,11 @@ class Game_env(gym.Env):
             'player_action': action
         }"""
 
-        reward_interval = 3
+        reward_interval = 0
         elapsed_time = time.time() - self.start_time
 
         if elapsed_time >= reward_interval:
-            self.reward = 2
+            self.reward = 1
             self.start_time = time.time() # reset timer
         #else:
         #    self.reward = 0
@@ -270,10 +371,14 @@ class Game_env(gym.Env):
         if game_over:
             # Check if player is near any corner
             player_near_corner = any(corner_area.colliderect(self.player_instance.rect) for corner_area in corner_areas)
-            self.reward = -21 if player_near_corner else -7
+            # if player is near corner, set reward to -21
+            if player_near_corner:
+                self.reward = -500
+            # otherwise, subtract reward by 7
+            else:
+                self.reward -= 7
             self.start_time = time.time() # reset timer
             self.done = True
-            #return self.observation, self.reward, self.truncated, self.done, self.info
 
         return self.observation, self.reward, self.truncated, self.done, self.info
 
@@ -378,6 +483,9 @@ class Game_env(gym.Env):
         # independent physics.
         dt = self.clock.tick(60) / 1000
     
+
+    
+
     def close(self):
         pygame.quit()
 
