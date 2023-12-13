@@ -7,14 +7,14 @@ import numpy as np
 register_custom_env()
 
 # Create an instance of your custom environment
-env = gym.make('dodge_game_env-v1')  
+env = gym.make('dodge_game_env-v3') 
 
 
 # Choose PPO as the reinforcement learning algorithm
 model = PPO("MlpPolicy", env, verbose=1)  # You can change "MlpPolicy" based on your network architecture
 
 # Train the agent on your environment for a certain number of timesteps
-total_timesteps = 400000  # Set the number of training timesteps
+total_timesteps = 40000  # Set the number of training timesteps
 
 
 obs, _ = env.reset()

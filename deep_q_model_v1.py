@@ -10,17 +10,17 @@ import os
 register_custom_env()
 
 # Create an instance of your custom environment
-env = gym.make('dodge_game_env-v1')
+env = gym.make('dodge_game_env-v3')
 
 
-input_shape = [21]
+input_shape = [42]
 n_outputs = 8
 
 # Deep Q-Network model
 model = keras.models.Sequential([
-    keras.layers.Dense(21, activation="relu", input_shape=input_shape),
-    keras.layers.Dense(30, activation="relu"),
-    keras.layers.Dense(20, activation="relu"),
+    keras.layers.Dense(42, activation="relu", input_shape=input_shape),
+    keras.layers.Dense(64, activation="relu"),
+    keras.layers.Dense(64, activation="relu"),
     keras.layers.Dense(n_outputs)
 ])
 
