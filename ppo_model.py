@@ -14,11 +14,18 @@ env = gym.make('dodge_game_env-v3')
 model = PPO("MlpPolicy", env, verbose=1)  # You can change "MlpPolicy" based on your network architecture
 
 # Train the agent on your environment for a certain number of timesteps
-total_timesteps = 40000  # Set the number of training timesteps
+total_timesteps = 20000  # Set the number of training timesteps
 
+# Train the model
+model.learn(total_timesteps=total_timesteps)
 
-obs, _ = env.reset()
-env.render()
+# Save the trained model
+model.save("ppo_custom_game_model")
+
+env_render = gym.make('dodge_game_env-v3')
+
+obs, _ = env_render.reset()
+env_render.render()
 
 # Training loop with episode rewards collection
 episode_rewards = []
@@ -34,25 +41,26 @@ plt.ylabel('Total Rewards')
 plt.title('Learning Curve')
 
 for timestep in range(total_timesteps):
-    if np.random.rand() < exploration_rate:
-        action = env.action_space.sample()  # Random exploration
-        exploration_rate *= 0.9999
-    else:
-        action, _ = model.predict(obs, deterministic=True)  # Exploitation
+    # if np.random.rand() < exploration_rate:
+    #     action = env.action_space.sample()  # Random exploration
+    #     exploration_rate *= 0.9999
+    # else:
+    #     action, _ = model.predict(obs, deterministic=True)  # Exploitation
+    action, _ = model.predict(obs, deterministic=True)  # Exploitation
         
-    obs, reward, truncated, done, _ = env.step(action)
-    env.render()
+    obs, reward, truncated, done, _ = env_render.step(action)
+    env_render.render()
 
     episode_reward += reward  # Accumulate the reward for the episode
 
-    if env.done:
+    if env_render.done:
         print(exploration_rate)
         print(f"Episode finished with reward: {episode_reward}")
         episode_rewards.append(episode_reward)
         episode_reward = 0  # Reset episode reward for the next episode
 
-        obs, _ = env.reset()
-        env.render()
+        obs, _ = env_render.reset()
+        env_render.render()
         plt.clf()  # Clear the previous plot
         plt.plot(episode_rewards, label='Episode Rewards')
         plt.legend()

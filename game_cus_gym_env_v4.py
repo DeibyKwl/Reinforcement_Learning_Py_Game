@@ -214,7 +214,7 @@ class Game_env(gym.Env):
 
         if elapsed_time >= reward_interval:
             #self.reward = 1
-            game_rewards += 3
+            game_rewards += 4
             self.start_time = time.time() # reset timer
         #else:
         #    self.reward = 0
@@ -222,7 +222,7 @@ class Game_env(gym.Env):
         self.info = {}
 
         for tomatoes in self.tomato.sprites():
-            if abs(self.player_instance.rect.x - tomatoes.rect.x) <= 35 and abs(self.player_instance.rect.y - tomatoes.rect.y) <= 35:
+            if abs(self.player_instance.rect.x - tomatoes.rect.x) <= 33 and abs(self.player_instance.rect.y - tomatoes.rect.y) <= 33:
                 game_rewards -= 1
             
 
