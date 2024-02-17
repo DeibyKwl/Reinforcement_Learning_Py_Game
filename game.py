@@ -11,26 +11,115 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
-        self.image = pygame.image.load('sprites/player/down.png').convert_alpha()
+
+        self.standing = [pygame.image.load('sprites/player/down.png')]
+
+        # For Animation
+        self.left = [pygame.image.load('sprites/player/left/1.png'),pygame.image.load('sprites/player/left/2.png'),pygame.image.load('sprites/player/left/3.png'),pygame.image.load('sprites/player/left/4.png'),pygame.image.load('sprites/player/left/5.png'),pygame.image.load('sprites/player/left/6.png'),pygame.image.load('sprites/player/left/7.png'),pygame.image.load('sprites/player/left/8.png'),]
+        self.right = [pygame.image.load('sprites/player/right/1.png'),pygame.image.load('sprites/player/right/2.png'),pygame.image.load('sprites/player/right/3.png'),pygame.image.load('sprites/player/right/4.png'),pygame.image.load('sprites/player/right/5.png'),pygame.image.load('sprites/player/right/6.png'),pygame.image.load('sprites/player/right/7.png'),pygame.image.load('sprites/player/right/8.png'),]
+        self.up = [pygame.image.load('sprites/player/up/1.png'),pygame.image.load('sprites/player/up/2.png'),pygame.image.load('sprites/player/up/3.png'),pygame.image.load('sprites/player/up/4.png'),pygame.image.load('sprites/player/up/5.png'),pygame.image.load('sprites/player/up/6.png'),pygame.image.load('sprites/player/up/7.png'),pygame.image.load('sprites/player/up/8.png'),]
+        self.up_left = [pygame.image.load('sprites/player/up_left/1.png'),pygame.image.load('sprites/player/up_left/2.png'),pygame.image.load('sprites/player/up_left/3.png'),pygame.image.load('sprites/player/up_left/4.png'),pygame.image.load('sprites/player/up_left/5.png'),pygame.image.load('sprites/player/up_left/6.png'),pygame.image.load('sprites/player/up_left/7.png'),pygame.image.load('sprites/player/up_left/8.png'),]
+        self.up_right = [pygame.image.load('sprites/player/up_right/1.png'),pygame.image.load('sprites/player/up_right/2.png'),pygame.image.load('sprites/player/up_right/3.png'),pygame.image.load('sprites/player/up_right/4.png'),pygame.image.load('sprites/player/up_right/5.png'),pygame.image.load('sprites/player/up_right/6.png'),pygame.image.load('sprites/player/up_right/7.png'),pygame.image.load('sprites/player/up_right/8.png'),]
+        self.down = [pygame.image.load('sprites/player/down/1.png'),pygame.image.load('sprites/player/down/2.png'),pygame.image.load('sprites/player/down/3.png'),pygame.image.load('sprites/player/down/4.png'),pygame.image.load('sprites/player/down/5.png'),pygame.image.load('sprites/player/down/6.png'),pygame.image.load('sprites/player/down/7.png'),pygame.image.load('sprites/player/down/8.png'),]
+        self.down_left = [pygame.image.load('sprites/player/down_left/1.png'),pygame.image.load('sprites/player/down_left/2.png'),pygame.image.load('sprites/player/down_left/3.png'),pygame.image.load('sprites/player/down_left/4.png'),pygame.image.load('sprites/player/down_left/5.png'),pygame.image.load('sprites/player/down_left/6.png'),pygame.image.load('sprites/player/down_left/7.png'),pygame.image.load('sprites/player/down_left/8.png'),]
+        self.down_right = [pygame.image.load('sprites/player/down_right/1.png'),pygame.image.load('sprites/player/down_right/2.png'),pygame.image.load('sprites/player/down_right/3.png'),pygame.image.load('sprites/player/down_right/4.png'),pygame.image.load('sprites/player/down_right/5.png'),pygame.image.load('sprites/player/down_right/6.png'),pygame.image.load('sprites/player/down_right/7.png'),pygame.image.load('sprites/player/down_right/8.png'),]
+        
+        
+        self.current_sprite = 0
+        self.image = self.standing[self.current_sprite]
         self.image = pygame.transform.scale(self.image, (20,40))
         self.rect = self.image.get_rect(center = (self.player_pos.x, self.player_pos.y))
         
-        self.position = pygame.Vector2(self.player_pos)
-        self.direction = pygame.Vector2(0, -1)
+
+    # TODO: make the nested if statement into one if statement per move
     def player_input(self):
+
+        self.current_sprite += 0.7
+
+        # If player is not moving, default sprite is used
+        self.image = self.standing[0]
+        self.image = pygame.transform.scale(self.image, (20,40))
+
+
         keys = pygame.key.get_pressed()
-        if self.rect.y >= 10:
+        if self.rect.y >= 10 and not keys[pygame.K_a] and not keys[pygame.K_d]:
             if keys[pygame.K_w]:
                 self.rect.y -= 200*dt
-        if self.rect.y <= 533:
+
+                if self.current_sprite > 7:
+                    self.current_sprite = 0
+                
+                self.image = self.up[int(self.current_sprite)]
+                self.image = pygame.transform.scale(self.image, (20,40))
+
+
+        if self.rect.y <= 533 and not keys[pygame.K_a] and not keys[pygame.K_d]:
             if keys[pygame.K_s]:
                 self.rect.y += 200*dt
-        if self.rect.x >= 10:
+                if self.current_sprite > 7:
+                    self.current_sprite = 0
+                
+                self.image = self.down[int(self.current_sprite)]
+                self.image = pygame.transform.scale(self.image, (20,40))
+
+        if self.rect.x >= 10 and not keys[pygame.K_w] and not keys[pygame.K_s]:
             if keys[pygame.K_a]:
                 self.rect.x -= 200*dt
-        if self.rect.x <= 530:
+                if self.current_sprite > 7:
+                    self.current_sprite = 0
+                
+                self.image = self.left[int(self.current_sprite)]
+                self.image = pygame.transform.scale(self.image, (20,40))
+
+        if self.rect.x <= 530 and not keys[pygame.K_w] and not keys[pygame.K_s]:
             if keys[pygame.K_d]:
                 self.rect.x += 200*dt
+                if self.current_sprite > 7:
+                    self.current_sprite = 0
+                
+                self.image = self.right[int(self.current_sprite)]
+                self.image = pygame.transform.scale(self.image, (20,40))
+
+        # Diagonal
+        if self.rect.y >= 10 and self.rect.x >= 10:
+            if keys[pygame.K_w] and keys[pygame.K_a]:
+                self.rect.y -= 200*dt
+                self.rect.x -= 200*dt
+                if self.current_sprite > 7:
+                    self.current_sprite = 0
+                
+                self.image = self.up_left[int(self.current_sprite)]
+                self.image = pygame.transform.scale(self.image, (20,40))
+
+        if self.rect.y >= 10 and self.rect.x <= 530:
+            if keys[pygame.K_w] and keys[pygame.K_d]:
+                self.rect.y -= 200*dt
+                self.rect.x += 200*dt
+                if self.current_sprite > 7:
+                    self.current_sprite = 0
+                
+                self.image = self.up_right[int(self.current_sprite)]
+                self.image = pygame.transform.scale(self.image, (20,40))
+
+        if self.rect.y <= 533 and self.rect.x >= 10:
+            if keys[pygame.K_s] and keys[pygame.K_a]:
+                self.rect.y += 200*dt
+                self.rect.x -= 200*dt
+                if self.current_sprite > 7:
+                    self.current_sprite = 0
+                
+                self.image = self.down_left[int(self.current_sprite)]
+                self.image = pygame.transform.scale(self.image, (20,40))
+
+        if self.rect.y <= 533 and self.rect.x <= 530:
+            if keys[pygame.K_s] and keys[pygame.K_d]:
+                self.rect.y += 200*dt
+                self.rect.x += 200*dt
+                if self.current_sprite > 7:
+                    self.current_sprite = 0
+                
+                self.image = self.down_right[int(self.current_sprite)]
+                self.image = pygame.transform.scale(self.image, (20,40))
     
     def update(self):
         self.player_input()
@@ -77,7 +166,7 @@ clock = pygame.time.Clock()
 running = True
 dt = 0
 
-ground_image = pygame.image.load('images/background_simple.png').convert_alpha()
+ground_image = pygame.image.load('sprites/background_simple.png').convert_alpha()
 
 # For game over screen
 test_font = pygame.font.Font(None, 50)
@@ -109,7 +198,6 @@ top_left_timer = pygame.USEREVENT + 1
 top_right_timer = pygame.USEREVENT + 2
 bottom_left_timer = pygame.USEREVENT + 3
 bottom_right_timer = pygame.USEREVENT + 4
-#pygame.time.set_timer(tomato_timer, 900)
 
 pygame.time.set_timer(top_left_timer, random.randint(200, 500))  # Timer 1
 pygame.time.set_timer(top_right_timer, random.randint(300, 500))  # Timer 2
@@ -151,6 +239,7 @@ while running:
 
     # Gaming screen
     if not game_over:
+
         # Background here
         screen.blit(ground_image, (0,0))
 
