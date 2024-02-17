@@ -19,8 +19,8 @@ n_outputs = 8
 # Deep Q-Network model
 model = keras.models.Sequential([
     keras.layers.Dense(42, activation="relu", input_shape=input_shape),
-    keras.layers.Dense(64, activation="relu"),
-    keras.layers.Dense(64, activation="relu"),
+    keras.layers.Dense(32, activation="relu"),
+    keras.layers.Dense(32, activation="relu"),
     keras.layers.Dense(n_outputs)
 ])
 

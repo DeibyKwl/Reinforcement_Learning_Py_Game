@@ -1,4 +1,4 @@
-from game_cus_gym_env import *
+from game_cus_gym_env_v2 import *
 
 env = Game_env()
 episodes = 50

@@ -121,7 +121,7 @@ class Game_env(gym.Env):
         self.player_surf = pygame.image.load('sprites/player/down.png').convert_alpha()
 
         # Background
-        self.ground_image = pygame.image.load('images/background_simple.png').convert_alpha()
+        self.ground_image = pygame.image.load('sprites/background_simple.png').convert_alpha()
 
         self.start_time = time.time()  # Store the start time
         self.player = pygame.sprite.Group()
