@@ -6,6 +6,8 @@ import random
 score = 0
 high_score = 0
 game_over = False
+SCREEN_WIDTH = 560
+SCREEN_HEIGHT = 580
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -24,106 +26,65 @@ class Player(pygame.sprite.Sprite):
         self.down_left = [pygame.image.load('sprites/player/down_left/1.png'),pygame.image.load('sprites/player/down_left/2.png'),pygame.image.load('sprites/player/down_left/3.png'),pygame.image.load('sprites/player/down_left/4.png'),pygame.image.load('sprites/player/down_left/5.png'),pygame.image.load('sprites/player/down_left/6.png'),pygame.image.load('sprites/player/down_left/7.png'),pygame.image.load('sprites/player/down_left/8.png'),]
         self.down_right = [pygame.image.load('sprites/player/down_right/1.png'),pygame.image.load('sprites/player/down_right/2.png'),pygame.image.load('sprites/player/down_right/3.png'),pygame.image.load('sprites/player/down_right/4.png'),pygame.image.load('sprites/player/down_right/5.png'),pygame.image.load('sprites/player/down_right/6.png'),pygame.image.load('sprites/player/down_right/7.png'),pygame.image.load('sprites/player/down_right/8.png'),]
         
-        
         self.current_sprite = 0
         self.image = self.standing[self.current_sprite]
         self.image = pygame.transform.scale(self.image, (20,40))
         self.rect = self.image.get_rect(center = (self.player_pos.x, self.player_pos.y))
         
-
     # TODO: make the nested if statement into one if statement per move
     def player_input(self):
 
-        self.current_sprite += 0.7
+        speed = 0.7
+        self.current_sprite += speed
+
+        if self.current_sprite > 7:
+            self.current_sprite = 0
 
         # If player is not moving, default sprite is used
         self.image = self.standing[0]
-        self.image = pygame.transform.scale(self.image, (20,40))
-
 
         keys = pygame.key.get_pressed()
-        if self.rect.y >= 10 and not keys[pygame.K_a] and not keys[pygame.K_d]:
-            if keys[pygame.K_w]:
-                self.rect.y -= 200*dt
+        if self.rect.y >= 10 and not keys[pygame.K_a] and not keys[pygame.K_d] and keys[pygame.K_w]:
+            self.rect.y -= 200*dt
+            self.image = self.up[int(self.current_sprite)]
 
-                if self.current_sprite > 7:
-                    self.current_sprite = 0
-                
-                self.image = self.up[int(self.current_sprite)]
-                self.image = pygame.transform.scale(self.image, (20,40))
+        if self.rect.y <= 533 and not keys[pygame.K_a] and not keys[pygame.K_d] and keys[pygame.K_s]:
+            self.rect.y += 200*dt
+            self.image = self.down[int(self.current_sprite)]
 
+        if self.rect.x >= 10 and not keys[pygame.K_w] and not keys[pygame.K_s] and keys[pygame.K_a]:
+            self.rect.x -= 200*dt
+            self.image = self.left[int(self.current_sprite)]
 
-        if self.rect.y <= 533 and not keys[pygame.K_a] and not keys[pygame.K_d]:
-            if keys[pygame.K_s]:
-                self.rect.y += 200*dt
-                if self.current_sprite > 7:
-                    self.current_sprite = 0
-                
-                self.image = self.down[int(self.current_sprite)]
-                self.image = pygame.transform.scale(self.image, (20,40))
-
-        if self.rect.x >= 10 and not keys[pygame.K_w] and not keys[pygame.K_s]:
-            if keys[pygame.K_a]:
-                self.rect.x -= 200*dt
-                if self.current_sprite > 7:
-                    self.current_sprite = 0
-                
-                self.image = self.left[int(self.current_sprite)]
-                self.image = pygame.transform.scale(self.image, (20,40))
-
-        if self.rect.x <= 530 and not keys[pygame.K_w] and not keys[pygame.K_s]:
-            if keys[pygame.K_d]:
-                self.rect.x += 200*dt
-                if self.current_sprite > 7:
-                    self.current_sprite = 0
-                
-                self.image = self.right[int(self.current_sprite)]
-                self.image = pygame.transform.scale(self.image, (20,40))
+        if self.rect.x <= 530 and not keys[pygame.K_w] and not keys[pygame.K_s] and keys[pygame.K_d]:
+            self.rect.x += 200*dt
+            self.image = self.right[int(self.current_sprite)]
 
         # Diagonal
-        if self.rect.y >= 10 and self.rect.x >= 10:
-            if keys[pygame.K_w] and keys[pygame.K_a]:
-                self.rect.y -= 200*dt
-                self.rect.x -= 200*dt
-                if self.current_sprite > 7:
-                    self.current_sprite = 0
-                
-                self.image = self.up_left[int(self.current_sprite)]
-                self.image = pygame.transform.scale(self.image, (20,40))
+        if self.rect.y >= 10 and self.rect.x >= 10 and keys[pygame.K_w] and keys[pygame.K_a]:
+            self.rect.y -= 200*dt
+            self.rect.x -= 200*dt
+            self.image = self.up_left[int(self.current_sprite)]
 
-        if self.rect.y >= 10 and self.rect.x <= 530:
-            if keys[pygame.K_w] and keys[pygame.K_d]:
-                self.rect.y -= 200*dt
-                self.rect.x += 200*dt
-                if self.current_sprite > 7:
-                    self.current_sprite = 0
-                
-                self.image = self.up_right[int(self.current_sprite)]
-                self.image = pygame.transform.scale(self.image, (20,40))
+        if self.rect.y >= 10 and self.rect.x <= 530 and keys[pygame.K_w] and keys[pygame.K_d]:
+            self.rect.y -= 200*dt
+            self.rect.x += 200*dt
+            self.image = self.up_right[int(self.current_sprite)]
 
-        if self.rect.y <= 533 and self.rect.x >= 10:
-            if keys[pygame.K_s] and keys[pygame.K_a]:
-                self.rect.y += 200*dt
-                self.rect.x -= 200*dt
-                if self.current_sprite > 7:
-                    self.current_sprite = 0
-                
-                self.image = self.down_left[int(self.current_sprite)]
-                self.image = pygame.transform.scale(self.image, (20,40))
+        if self.rect.y <= 533 and self.rect.x >= 10 and keys[pygame.K_s] and keys[pygame.K_a]:
+            self.rect.y += 200*dt
+            self.rect.x -= 200*dt
+            self.image = self.down_left[int(self.current_sprite)]
 
-        if self.rect.y <= 533 and self.rect.x <= 530:
-            if keys[pygame.K_s] and keys[pygame.K_d]:
-                self.rect.y += 200*dt
-                self.rect.x += 200*dt
-                if self.current_sprite > 7:
-                    self.current_sprite = 0
-                
-                self.image = self.down_right[int(self.current_sprite)]
-                self.image = pygame.transform.scale(self.image, (20,40))
-    
+        if self.rect.y <= 533 and self.rect.x <= 530 and keys[pygame.K_s] and keys[pygame.K_d]:
+            self.rect.y += 200*dt
+            self.rect.x += 200*dt
+            self.image = self.down_right[int(self.current_sprite)]
+
+        self.image = pygame.transform.scale(self.image, (20,40))
+
     def update(self):
         self.player_input()
-
 
 class Tomato(pygame.sprite.Sprite):
     def __init__(self, x, y, p_x, p_y, player_instance):
@@ -157,9 +118,6 @@ class Tomato(pygame.sprite.Sprite):
             score += 1
 
 pygame.init()
-
-SCREEN_WIDTH = 560
-SCREEN_HEIGHT = 580
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
