@@ -44,39 +44,65 @@ class Player(pygame.sprite.Sprite):
         self.image = self.standing[0]
 
         keys = pygame.key.get_pressed()
-        if self.rect.y >= 10 and not keys[pygame.K_a] and not keys[pygame.K_d] and keys[pygame.K_w]:
+
+        # Avoid left and right paired moves
+        if keys[pygame.K_a] and keys[pygame.K_d] and keys[pygame.K_w]:
             self.rect.y -= 200*dt
             self.image = self.up[int(self.current_sprite)]
 
-        if self.rect.y <= 533 and not keys[pygame.K_a] and not keys[pygame.K_d] and keys[pygame.K_s]:
+        elif keys[pygame.K_a] and keys[pygame.K_d] and keys[pygame.K_s]:
             self.rect.y += 200*dt
             self.image = self.down[int(self.current_sprite)]
 
-        if self.rect.x >= 10 and not keys[pygame.K_w] and not keys[pygame.K_s] and keys[pygame.K_a]:
+        elif keys[pygame.K_a] and keys[pygame.K_d]:
+            self.image = self.standing[0]
+
+        # Avoid up and down paired moves
+        elif keys[pygame.K_w] and keys[pygame.K_s] and keys[pygame.K_a]:
             self.rect.x -= 200*dt
             self.image = self.left[int(self.current_sprite)]
 
-        if self.rect.x <= 530 and not keys[pygame.K_w] and not keys[pygame.K_s] and keys[pygame.K_d]:
+        elif keys[pygame.K_w] and keys[pygame.K_s] and keys[pygame.K_d]:
+            self.rect.x += 200*dt
+            self.image = self.right[int(self.current_sprite)]
+
+        elif keys[pygame.K_w] and keys[pygame.K_s]:
+            self.image = self.standing[0]
+
+        # Four cardinal directions
+        elif self.rect.y >= 10 and not keys[pygame.K_a] and not keys[pygame.K_d] and keys[pygame.K_w]:
+            self.rect.y -= 200*dt
+            self.image = self.up[int(self.current_sprite)]
+
+        elif self.rect.y <= 533 and not keys[pygame.K_a] and not keys[pygame.K_d] and keys[pygame.K_s]:
+            self.rect.y += 200*dt
+            self.image = self.down[int(self.current_sprite)]
+
+        elif self.rect.x >= 10 and not keys[pygame.K_w] and not keys[pygame.K_s] and keys[pygame.K_a]:
+            self.rect.x -= 200*dt
+            self.image = self.left[int(self.current_sprite)]
+
+        elif self.rect.x <= 530 and not keys[pygame.K_w] and not keys[pygame.K_s] and keys[pygame.K_d]:
             self.rect.x += 200*dt
             self.image = self.right[int(self.current_sprite)]
 
         # Diagonal
-        if self.rect.y >= 10 and self.rect.x >= 10 and keys[pygame.K_w] and keys[pygame.K_a]:
+        elif self.rect.y >= 10 and self.rect.x >= 10 and keys[pygame.K_w] and keys[pygame.K_a]:
             self.rect.y -= 200*dt
             self.rect.x -= 200*dt
             self.image = self.up_left[int(self.current_sprite)]
 
-        if self.rect.y >= 10 and self.rect.x <= 530 and keys[pygame.K_w] and keys[pygame.K_d]:
+        elif self.rect.y >= 10 and self.rect.x <= 530 and keys[pygame.K_w] and keys[pygame.K_d]:
             self.rect.y -= 200*dt
             self.rect.x += 200*dt
             self.image = self.up_right[int(self.current_sprite)]
 
-        if self.rect.y <= 533 and self.rect.x >= 10 and keys[pygame.K_s] and keys[pygame.K_a]:
+        elif self.rect.y <= 533 and self.rect.x >= 10 and keys[pygame.K_s] and keys[pygame.K_a]:
             self.rect.y += 200*dt
             self.rect.x -= 200*dt
             self.image = self.down_left[int(self.current_sprite)]
 
-        if self.rect.y <= 533 and self.rect.x <= 530 and keys[pygame.K_s] and keys[pygame.K_d]:
+        elif self.rect.y <= 533 and self.rect.x <= 530 and keys[pygame.K_s] and keys[pygame.K_d]:
             self.rect.y += 200*dt
             self.rect.x += 200*dt
             self.image = self.down_right[int(self.current_sprite)]
