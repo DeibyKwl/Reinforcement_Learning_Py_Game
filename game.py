@@ -46,11 +46,11 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
 
         # Avoid left and right paired moves
-        if keys[pygame.K_a] and keys[pygame.K_d] and keys[pygame.K_w]:
+        if self.rect.y >= 10 and keys[pygame.K_a] and keys[pygame.K_d] and keys[pygame.K_w]:
             self.rect.y -= 200*dt
             self.image = self.up[int(self.current_sprite)]
 
-        elif keys[pygame.K_a] and keys[pygame.K_d] and keys[pygame.K_s]:
+        elif self.rect.y <= 533 and keys[pygame.K_a] and keys[pygame.K_d] and keys[pygame.K_s]:
             self.rect.y += 200*dt
             self.image = self.down[int(self.current_sprite)]
 
@@ -58,11 +58,11 @@ class Player(pygame.sprite.Sprite):
             self.image = self.standing[0]
 
         # Avoid up and down paired moves
-        elif keys[pygame.K_w] and keys[pygame.K_s] and keys[pygame.K_a]:
+        elif self.rect.x >= 10 and keys[pygame.K_w] and keys[pygame.K_s] and keys[pygame.K_a]:
             self.rect.x -= 200*dt
             self.image = self.left[int(self.current_sprite)]
 
-        elif keys[pygame.K_w] and keys[pygame.K_s] and keys[pygame.K_d]:
+        elif self.rect.x <= 530 and keys[pygame.K_w] and keys[pygame.K_s] and keys[pygame.K_d]:
             self.rect.x += 200*dt
             self.image = self.right[int(self.current_sprite)]
 
