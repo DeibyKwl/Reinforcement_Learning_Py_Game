@@ -1,6 +1,6 @@
 import gymnasium as gym
 import matplotlib.pyplot as plt
-from register_env import register_custom_env
+from Dodge_The_Tomatoes_Videogame.register_env import register_custom_env
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras

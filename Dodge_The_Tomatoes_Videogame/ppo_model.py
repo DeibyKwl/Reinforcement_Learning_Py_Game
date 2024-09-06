@@ -1,7 +1,7 @@
 import gymnasium as gym
 from stable_baselines3 import PPO
 import matplotlib.pyplot as plt
-from register_env import register_custom_env
+from Dodge_The_Tomatoes_Videogame.register_env import register_custom_env
 import numpy as np
 
 register_custom_env()

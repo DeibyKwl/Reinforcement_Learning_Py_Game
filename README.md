@@ -1,3 +1,8 @@
+# Before
+
+## Install requirements
+Install the required libraries before running the project, `pip install -r requirements.txt`
+
 # Dodge the tomatoes!!! The Game
 
 This project consists of a game where the protagonist (You) tries to dodge tomatoes thrown at you by 4 bullies. Aside from that we are exploring reinforcement learning algorithms so the game could play by itself.
